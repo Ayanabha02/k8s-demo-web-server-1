@@ -27,23 +27,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           aws-region: "${{ secrets.AWS_REGION }}"
-      - name: Update kubeconfig
-        run: >
-          aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} | sed
-          's/^/BEARER /' > /tmp/aws-token
 
-          aws eks get-credentials --region ${{ secrets.AWS_REGION }}
-          --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} | sed 's/users/users\:\
-          /' > kubeconfig
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v2.0
+        id: install
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
       - name: Restart Deployment
-        uses: aws-eks/kubectl-action@v1
-        env:
-          KUBECONFIG: kubeconfig
-        with:
-          args: rollout restart deployment ${{ secrets.DEPLOYMENT_NAME }} -n test
+        run: kubectl rollout restart deployment ${{ secrets.DEPLOYMENT_NAME }} -n ${{ secrets.NAMESPACE }}
