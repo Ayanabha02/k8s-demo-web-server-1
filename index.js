@@ -9,11 +9,17 @@ app.use(express.json());
 app.get("/hello", (req, res) => {
   res.send({ message: "Hello ji this is server 1" });
 });
+
 app.get("/service1/hello", (req, res) => {
   res.send({ message: "Hello ji this is server 1" });
 });
+
 app.get("/service1/mello", (req, res) => {
   res.send({ message: "Mello ji this is server 1" });
+});
+
+app.get("/service1/hi", (req, res) => {
+  res.send({ message: "Hi this is server 1" });
 });
 
 app.listen(PORT, () => {
